@@ -1,0 +1,178 @@
+h1
+{
+    padding-top: 50px;
+    text-align: center;
+    font-family: Arial;
+    font-size: 50px;
+}
+
+h2, label
+{
+    padding-top: 50px;
+    text-align: center;
+    font-family: Arial;
+    font-size: 20px;
+}
+
+#gameButtons button
+{
+    color: white;
+    font-weight: bold;
+    background-color: blue;
+    border-color: cyan;
+    width: 200px;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    display: block;
+    margin: 20px auto;
+
+}
+
+#gameButtons button:hover
+{
+cursor: pointer;
+color: cyan;
+border: 2px solid transparent;
+outline: none;
+}
+
+
+#boxContainer{
+    display: flex;
+    border-radius: 10px;
+    background-color: #0095ff;
+    color: white;
+    width: 50%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+div#boxContainer{
+    margin: auto;
+    text-align: left;
+}
+
+#levelSelectBox {
+  display: grid;
+  grid-template-columns: repeat(5, 60px);
+  gap: 30px;
+  justify-content: center;
+  margin: 60px auto;
+  padding: 30px;
+  width: fit-content;
+  border-radius: 15px;
+  background-color: #dbdbdb;
+  border: 2px solid black;
+}
+
+div#levelSelectBox
+{
+margin: auto;
+}
+
+#levelSelectBox button 
+{
+  width: 60px;
+  height: 60px;
+  font-size: 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+div#levelSelectBox :hover
+{
+    border: 2px solid blue;
+    background-color: rgb(226, 226, 226);
+    cursor: pointer;
+    color: blue;
+}
+
+#scoreContainer 
+{
+  width: 500px;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 15px;
+  background-color: #0095ff;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+
+.scoreRow 
+{
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ffffff;
+}
+
+.scoreRow:last-child 
+{
+  border-bottom: none;
+}
+
+.name 
+{
+  font-weight: bold;
+}
+
+.score 
+{
+  font-weight: bold;
+}
+
+.header 
+{
+  font-weight: bold;
+  border-bottom: 2px solid #fff;
+}
+
+
+#difficultyElement {
+  width: fit-content;
+  margin: 0 auto;
+}
+
+#arrowImg {
+  width: 60px;
+  display: block;
+  margin: 10px auto;
+}
+
+
+.howTo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.arrow {
+  width: 35px;
+  height: auto;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.level-btn.selected {
+  background-color: red;
+  color: white;
+  border: 2px solid red;
+}
+
+#gameBody
+{
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+#gameCanvas 
+{
+  border: 2px solid white;
+  background: black;
+}
