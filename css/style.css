@@ -37,6 +37,24 @@ border: 2px solid transparent;
 outline: none;
 }
 
+#gameButtons button:disabled 
+{
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none; 
+  filter: grayscale(20%);
+  color: #ddd;
+  background-color: #7a7a7a; 
+  border-color: #999;
+}
+
+
+#gameButtons button:disabled:hover 
+{
+  transform: none;
+  background-color: #7a7a7a;
+}
+
 
 #boxContainer{
     display: flex;
@@ -104,13 +122,19 @@ div#levelSelectBox :hover
 {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  padding: 6px 12px;
   border-bottom: 1px solid #ffffff;
 }
 
 .scoreRow:last-child 
 {
   border-bottom: none;
+}
+
+.scoreRow.header 
+{
+  font-weight: bold;
+  border-bottom: 2px solid #fff;
 }
 
 .name 
@@ -175,4 +199,11 @@ div#levelSelectBox :hover
 {
   border: 2px solid white;
   background: black;
+}
+
+.scoreRow.no-score 
+{
+    justify-content: center;  /* Center horizontally */
+    text-align: center;       /* Center text inside spans */
+    font-size: 20px;
 }
