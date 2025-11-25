@@ -14,6 +14,7 @@ const isGamePage = window.location.pathname.includes("game.html");
 
 //-------------------- VARIABLES --------------------//
 let ballSpeed = 5;
+let ballAttached = true;   //Ball starts attached to paddle
 let paddleDirection = 0; // -1 = left, 1 = right, 0 = stop
 let ball = { x: 0, y: 0, dx: ballSpeed, dy: ballSpeed, radius: 8 };
 let paddle = { x: 0, y: gameHeight - 40, width: 100, height: 15 };
@@ -21,6 +22,7 @@ let bricks = [];
 let difficultyLevel = ["Easy", "Normal", "Hard"];
 let score = 0;
 let lives = 3;
+let globalHitCount = 0;
 let hitCount = 0;
 let gameOver = false;
 let currentLevel = 1;
@@ -53,9 +55,8 @@ function init()
 
     //Initialize the game variables
     score = 0;
-    lives = 3;
+    lives = 2;
     gameOver = false;
-
     menuState = "inGame";
 
     // Start game loop
@@ -84,6 +85,13 @@ function movePaddle() {
     {
         paddle.x = gameWidth - paddle.width;
     }
+}
+
+if (ballAttached) 
+{
+    //Keep ball locked above the paddle
+    ball.x = paddle.x + paddle.width / 2;
+    ball.y = paddle.y - ball.radius - 2;
 }
 
 
@@ -156,20 +164,26 @@ if (ball.y - ball.radius < 0)
         if (lives <= 0) 
         {
             gameOver = true;
-            menuState = "title";  // Stop the loop
+            menuState = "title";  //Stop the loop
             console.log("Game over!");
+            //Return to the title screen
             window.location.href = "../index.html";
         }
         else
         {
+            //Deduct player's lives
             lives--;    
         }
 
-        //Reset ball position only if its not game over
+        //Reattach the ball to paddle only if its not game over
         if (!gameOver)
         {
-        ball.x = gameWidth / 2;
-        ball.y = gameHeight / 2;
+          //Reattach ball to paddle
+          ballAttached = true;
+
+          //Center ball on paddle next frame
+          ball.dx = 0;
+          ball.dy = 0;
         }
 
         //Reset vertical direction
@@ -207,7 +221,7 @@ if (ball.y - ball.radius < 0)
 }
 
 
-//Render game elements
+//Render game elements using canvas
 function renderGameElements() 
 {
     context.clearRect(0, 0, gameWidth, gameHeight);
@@ -261,9 +275,23 @@ function loadLevel(levelGrid)
 //Game loop
 function gameLoop() 
 {
+    //Check if the player is in game after selecting level
     if (menuState !== "inGame") return;
-    movePaddle(); 
-    moveBall();
+
+    movePaddle();
+
+    //The ball can move if it is not attached to the paddle
+    if (!ballAttached) 
+    {
+        moveBall();
+    } 
+    else
+    {
+        //Keep the ball on paddle
+        ball.x = paddle.x + paddle.width / 2;
+        ball.y = paddle.y - ball.radius - 2;
+    }
+
     checkCollisions();
     renderGameElements();
     renderHUD();
@@ -271,16 +299,18 @@ function gameLoop()
     requestAnimationFrame(gameLoop);
 }
 
+
 function updateLevel()
 {
     if (!isGamePage || !canvas) return;
     console.log('next level');
     
-    //Reset ball's position and stop it momentarily
-    ball.x = gameWidth / 2;
-    ball.y = gameHeight / 2;
-    ball.dx = ballSpeed * (Math.random() < 0.5 ? -1 : 1);
-    ball.dy = -ballSpeed;
+    //Reattach ball to paddle after warping to next level
+    ballAttached = true;
+
+    //Center ball on paddle next frame
+    ball.dx = 0;
+    ball.dy = 0;
 
     //Reset paddle's position
     paddle.x = gameWidth / 2 - paddle.width / 2;
@@ -294,16 +324,16 @@ function updateLevel()
 
 function checkLevelStatus()
 {
-//For loop to loop through levels to avoid out of bounds issue
+//Using For loop to loop through levels to avoid out of bounds issue
     if (currentLevel == levels.length)
     {
         //If player has cleared the last level, then return to main menu
         window.location.href = "../index.html";
-        menuState = "title";    
+        menuState = "title";
     }
     else
     {
-        //Player hasn't yet reached last level then will warp to next level
+        //If the player hasn't yet reached last level then will warp to next level
         currentLevel++;
         reinitializeLevel();
         updateLevel();
@@ -316,22 +346,49 @@ function reinitializeLevel()
      menuState = "inGame"; 
 }
 
+function modifyBallSpeed(newSpeed)
+{
+    ballSpeed = newSpeed;
+
+    //Keeping direction of ball using atan2 to keep the angle as in radians
+    let angle = Math.atan2(ball.dy, ball.dx);
+
+    //Apply new speed using sin and cosine formulas
+    ball.dx = Math.cos(angle) * newSpeed;
+    ball.dy = Math.sin(angle) * newSpeed;
+
+    return newSpeed;
+}
+
 //-------------------- EVENT LISTENERS --------------------//
 
-//Only add paddle controls on game page
+//Only add paddle controls during the game on game page
 if (isGamePage) 
 {
     window.addEventListener("load", () => init());
 
-    // keydown
+    //Input Key Down Press
     window.addEventListener("keydown", (e) => {
         if (e.key === "ArrowLeft") paddleDirection = -1;
         if (e.key === "ArrowRight") paddleDirection = 1;
     });
 
-    // keyup
+    //Input Key Up Press
     window.addEventListener("keyup", (e) => {
         if (e.key === "ArrowLeft" && paddleDirection === -1) paddleDirection = 0;
         if (e.key === "ArrowRight" && paddleDirection === 1) paddleDirection = 0;
     });
+
+    //Launch the ball when pressed space
+    window.addEventListener("keydown", (e) => {
+    if (e.code === "Space" && ballAttached) 
+    {
+        ballAttached = false;
+        ball.dx = ballSpeed * 0.2;
+        ball.dy = -ballSpeed;
+    }
+
+    if (e.key === "ArrowLeft") paddleDirection = -1;
+    if (e.key === "ArrowRight") paddleDirection = 1;
+});
 }
