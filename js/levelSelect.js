@@ -9,6 +9,7 @@ buttons.forEach(btn =>
         buttons.forEach(b => b.classList.remove("selected"));
         btn.classList.add("selected");
         chosenLevel = parseInt(btn.dataset.level);
+        console.log("Selected Level: "+ chosenLevel);
     });
 });
 

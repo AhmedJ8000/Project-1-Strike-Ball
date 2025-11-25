@@ -13,8 +13,8 @@ const savedLevel = localStorage.getItem("selectedLevel");
 const isGamePage = window.location.pathname.includes("game.html");
 
 //-------------------- VARIABLES --------------------//
-let ballSpeed = 4;
-let paddleDir = 0; // -1 = left, 1 = right, 0 = stop
+let ballSpeed = 5;
+let paddleDirection = 0; // -1 = left, 1 = right, 0 = stop
 let ball = { x: 0, y: 0, dx: ballSpeed, dy: ballSpeed, radius: 8 };
 let paddle = { x: 0, y: gameHeight - 40, width: 100, height: 15 };
 let bricks = [];
@@ -40,18 +40,18 @@ function init()
 {
     if (!isGamePage || !canvas) return;
 
-    // Reset ball position
+    //Reset ball position
     ball.x = gameWidth / 2;
     ball.y = gameHeight;
 
-    // Reset paddle position
+    //Reset paddle position
     paddle.x = gameWidth / 2 - paddle.width / 2;
     paddle.y = gameHeight - paddle.height - 10;
 
-    // Load level from levels.js
+    //Load level from levels.js
     loadLevel(levels[currentLevel - 1]);
 
-    // Reset game variables
+    //Initialize the game variables
     score = 0;
     lives = 3;
     gameOver = false;
@@ -69,20 +69,21 @@ function runGame()
     checkCollisions();
     renderHUD();
     renderGameElements();
-
-    if (gameOver) 
-    {
-        //Stop game
-        //Return to title screen
-    }
 }
 
 function movePaddle() {
-    paddle.x += paddleDir * paddleSpeed * (1/60); // speed per frame (scaled)
+    paddle.x += paddleDirection * paddleSpeed * (1/60); //Paddle Speed per frame (scaled)
     
-    // Keep paddle inside screen
-    if (paddle.x < 0) paddle.x = 0;
-    if (paddle.x + paddle.width > gameWidth) paddle.x = gameWidth - paddle.width;
+    //Keep the paddle inside the screen
+    if (paddle.x < 0) 
+    {
+        paddle.x = 0;
+    }
+
+    if (paddle.x + paddle.width > gameWidth) 
+    {
+        paddle.x = gameWidth - paddle.width;
+    }
 }
 
 
@@ -118,8 +119,12 @@ if (ball.y - ball.radius < 0)
 }
 
     // Paddle collision
-    if (ball.y + ball.radius > paddle.y && ball.y - ball.radius < paddle.y + paddle.height &&
-        ball.x + ball.radius > paddle.x && ball.x - ball.radius < paddle.x + paddle.width) 
+    if (
+        ball.y + ball.radius > paddle.y && 
+        ball.y - ball.radius < paddle.y + paddle.height &&
+        ball.x + ball.radius > paddle.x && 
+        ball.x - ball.radius < paddle.x + paddle.width
+       ) 
     {
         // Compute where on the paddle the ball hit
         let paddleCenterX = paddle.x + paddle.width / 2;
@@ -157,7 +162,7 @@ if (ball.y - ball.radius < 0)
         }
         else
         {
-        lives--;    
+            lives--;    
         }
 
         //Reset ball position only if its not game over
@@ -177,15 +182,17 @@ if (ball.y - ball.radius < 0)
     //Brick collisions
     bricks = bricks.filter(brick => 
     {
-        const hit = ball.x + ball.radius > brick.x && ball.x - ball.radius < brick.x + brick.width &&
-        ball.y + ball.radius > brick.y && ball.y - ball.radius < brick.y + brick.height;
+        const hit = ball.x + ball.radius > brick.x && 
+        ball.x - ball.radius < brick.x + brick.width &&
+        ball.y + ball.radius > brick.y && 
+        ball.y - ball.radius < brick.y + brick.height;
 
     if (hit) 
     {
         ball.dy *= -1; //Simple bounce
         score += 10;
-        hitCount += 1; //Counting hits per brick
-        console.log("Hit Count: "+hitCount)
+        hitCount += 1; //Counting every hit of the brick
+        console.log("Hit Count: "+ hitCount)
         return false; //Removing the brick
     }
         return true;
@@ -193,9 +200,9 @@ if (ball.y - ball.radius < 0)
 
     const isWinner = bricks.every((brick)=> brick === 0)
 
-    if(isWinner)
+    if (isWinner)
     {
-        console.log('next level');
+        checkLevelStatus();
     }
 }
 
@@ -205,17 +212,17 @@ function renderGameElements()
 {
     context.clearRect(0, 0, gameWidth, gameHeight);
 
-    // Ball
+    //Ball Style
     context.fillStyle = "white";
     context.beginPath();
     context.arc(ball.x, ball.y, 8, 0, Math.PI * 2);
     context.fill();
 
-    // Paddle
+    //Paddle Style
     context.fillStyle = "cyan";
     context.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
 
-    // Bricks
+    //Bricks Style
     context.fillStyle = "red";
     bricks.forEach(b => 
     {
@@ -223,7 +230,7 @@ function renderGameElements()
     });
 }
 
-//Render HUD
+//Render HUD elements such as lives, score, and level number
 function renderHUD() 
 {
     if (!context) return;
@@ -264,22 +271,67 @@ function gameLoop()
     requestAnimationFrame(gameLoop);
 }
 
+function updateLevel()
+{
+    if (!isGamePage || !canvas) return;
+    console.log('next level');
+    
+    //Reset ball's position and stop it momentarily
+    ball.x = gameWidth / 2;
+    ball.y = gameHeight / 2;
+    ball.dx = ballSpeed * (Math.random() < 0.5 ? -1 : 1);
+    ball.dy = -ballSpeed;
+
+    //Reset paddle's position
+    paddle.x = gameWidth / 2 - paddle.width / 2;
+    paddle.y = gameHeight - paddle.height - 10;
+
+    hitCount = 0; //Reset hits count
+
+    //Load level from levels.js
+    loadLevel(levels[currentLevel - 1]);
+}
+
+function checkLevelStatus()
+{
+//For loop to loop through levels to avoid out of bounds issue
+    if (currentLevel == levels.length)
+    {
+        //If player has cleared the last level, then return to main menu
+        window.location.href = "../index.html";
+        menuState = "title";    
+    }
+    else
+    {
+        //Player hasn't yet reached last level then will warp to next level
+        currentLevel++;
+        reinitializeLevel();
+        updateLevel();
+    }
+}
+
+function reinitializeLevel()
+{
+     gameOver = false;
+     menuState = "inGame"; 
+}
+
 //-------------------- EVENT LISTENERS --------------------//
 
 //Only add paddle controls on game page
-if (isGamePage) {
+if (isGamePage) 
+{
     window.addEventListener("load", () => init());
 
     // keydown
     window.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") paddleDir = -1;
-        if (e.key === "ArrowRight") paddleDir = 1;
+        if (e.key === "ArrowLeft") paddleDirection = -1;
+        if (e.key === "ArrowRight") paddleDirection = 1;
     });
 
     // keyup
     window.addEventListener("keyup", (e) => {
-        if (e.key === "ArrowLeft" && paddleDir === -1) paddleDir = 0;
-        if (e.key === "ArrowRight" && paddleDir === 1) paddleDir = 0;
+        if (e.key === "ArrowLeft" && paddleDirection === -1) paddleDirection = 0;
+        if (e.key === "ArrowRight" && paddleDirection === 1) paddleDirection = 0;
     });
 }
-
