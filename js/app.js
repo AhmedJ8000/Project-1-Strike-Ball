@@ -8,6 +8,7 @@ const canvas = document.querySelector("#gameCanvas");
 const context = canvas ? canvas.getContext("2d") : null;
 const levelButtons = document.querySelectorAll('.level-btn');
 const savedLevel = localStorage.getItem("selectedLevel");
+const brickHit = new Audio('../assets/audio/brickHit.mp3');
 
 //Only run game logic if we are on game.html
 const isGamePage = window.location.pathname.includes("game.html");
@@ -177,6 +178,10 @@ if (ball.y - ball.radius < 0)
         {
             //Deduct player's lives
             lives--;
+
+            //Reset paddle position
+            paddle.x = gameWidth / 2 - paddle.width / 2;
+            paddle.y = gameHeight - paddle.height - 10;
             modifyBallSpeed(7); //Reset Ball's Speed    
         }
 
@@ -254,16 +259,10 @@ if (ball.y - ball.radius < 0)
         }
         scoreGame();
         hitCount++;
-            console.log(ballSpeed);
-
-        //Counting every hit of the brick
-        //Every 3 hits > increase ball speed by + 1
-        if (hitCount % 3 === 0) 
-        {
-            ballSpeed = Math.min(ballSpeed + 1, MAX_BALL_SPEED);
-            modifyBallSpeed(ballSpeed);
-        }
-        console.log("Hit Count: " + hitCount);
+        brickHit.play();
+        console.log(`Ball Speed ${ballSpeed}`);
+        updateBallSpeedPerBrick();
+        //console.log("Hit Count: " + hitCount);
         return false; //Removing the brick
     }
         return true;
@@ -509,6 +508,17 @@ function saveHighScore(name, score)
 
     //Save score data
     localStorage.setItem("highScores", JSON.stringify(highScores));
+}
+
+function updateBallSpeedPerBrick()
+{
+    //Counting every hit of the brick
+    //Every 5 hits > increase ball speed by + 1
+    if (hitCount % 5 === 0) 
+    {
+            ballSpeed = Math.min(ballSpeed + 1, MAX_BALL_SPEED);
+            modifyBallSpeed(ballSpeed);
+    }
 }
 
 
