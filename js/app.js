@@ -8,7 +8,7 @@ const canvas = document.querySelector("#gameCanvas");
 const context = canvas ? canvas.getContext("2d") : null;
 const levelButtons = document.querySelectorAll('.level-btn');
 const savedLevel = localStorage.getItem("selectedLevel");
-const brickHit = new Audio('../audio/brickHit.mp3');
+
 
 //Only run game logic if we are on game.html
 const isGamePage = window.location.pathname.includes("game.html");
@@ -61,7 +61,6 @@ function init()
 
     //Initialize the game variables
     score = 0;
-    lives = 2;
     gameOver = false;
     menuState = "inGame";
 
@@ -262,7 +261,7 @@ if (ball.y - ball.radius < 0)
         }
         scoreGame();
         hitCount++;
-        brickHit.play();
+        playHitSound();
         console.log(`Ball Speed ${ballSpeed}`);
         updateBallSpeedPerBrick();
         //console.log("Hit Count: " + hitCount);
@@ -493,9 +492,10 @@ function showNameEntry()
         const name = input.value.trim();
         if (name) 
         {
-            saveHighScore(name, score); //save name + score
+            saveHighScore(name, score); //Save name + score
+            localStorage.setItem("currentScoreDifficulty", selectedDifficulty); //Save the difficulty temporarily for high score page
             window.location.href = "highScores.html"; //Go to high score page
-            menuState = "HighScore";
+            menuState = "highScore";  //Change menu state to high score
         }
     });
 }
@@ -503,11 +503,13 @@ function showNameEntry()
 
 function saveHighScore(name, score) 
 {
+    const difficulty = localStorage.getItem("selectedDifficulty") || "normal";
+
     //Get the previous scores
     let highScores = JSON.parse(localStorage.getItem("highScores")) || [];
 
-    //Add the new score data
-    highScores.push({ name, score });
+    //Add the new score data with difficulty
+    highScores.push({ name, score, difficulty });
 
     //Sort descending and keep top 10 scores list
     highScores.sort((a, b) => b.score - a.score);
@@ -544,32 +546,33 @@ function updateBallSpeedPerBrick()
 //Initialize the game difficulty settings based on selected difficulty from options
 function applyDifficultySettings() 
 {
-    // Get saved difficulty, default to "normal"
-    let selectedDifficulty = localStorage.getItem("selectedDifficulty") || "normal";
+    selectedDifficulty = localStorage.getItem("selectedDifficulty") || "normal";
 
     if (selectedDifficulty === "easy") 
     {
+        lives = 6;
         ballSpeed = 4;
-        paddle.width = 300; //Wide paddle for easier gameplay
+        paddle.width = 300; //Wide paddle for easier gameplay and the ball is slower at beginning
     } 
     else if (selectedDifficulty === "normal") 
     {
+        lives = 4;
         ballSpeed = 7;
-        paddle.width = 100; //Standard paddle width
+        paddle.width = 100; //Standard paddle width for classic retro gameplay, with normal ball speed
     } 
     else if (selectedDifficulty === "hard") 
     {
+        lives = 2;
         ballSpeed = 10;
-        paddle.width = 100; //Same size as normal difficulty paddle but the ball is faster
+        paddle.width = 100; //Same size as normal difficulty paddle but the ball is faster in hard at beginning
     }
 
     console.log("Difficulty:", selectedDifficulty, "| Ball Speed:", ballSpeed, "| Paddle Width:", paddle.width);
 }
 
+//Resetting ball's speed when ball falls down based on selected difficulty
 function resetBallSpeedByDifficulty()
 {
-// Get saved difficulty, default to "normal"
-
     if (selectedDifficulty === "easy") 
     {
         setBallSpeed(4);
@@ -582,6 +585,13 @@ function resetBallSpeedByDifficulty()
     {
         setBallSpeed(10);
     }
+}
+
+//Brick hit sound effect
+function playHitSound() 
+{
+    const brickHit = new Audio('../audio/brickHit.mp3');
+    brickHit.play();
 }
 
 //-------------------- EVENT LISTENERS --------------------//
@@ -614,5 +624,18 @@ if (isGamePage)
 
     if (e.key === "ArrowLeft") paddleDirection = -1;
     if (e.key === "ArrowRight") paddleDirection = 1;
+
+    //Press esc to quit
+    document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") 
+    {
+        //Prevent browser actions
+        e.preventDefault();
+
+        //Go back to the title screen
+        window.location.href = "../index.html";
+    }
+});
+
 });
 }

@@ -8,7 +8,7 @@ console.log("Current difficulty:", savedDifficulty);
 
 // When the selection changes
 difficultySelect.addEventListener("change", () => {
-    const selectedDifficulty = difficultySelect.value; // "easy", "normal", or "hard"
+    const selectedDifficulty = difficultySelect.value; //Values -> "easy", "normal", or "hard"
     console.log("Selected difficulty:", selectedDifficulty);
 
     // Save it to localStorage
