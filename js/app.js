@@ -259,7 +259,7 @@ if (ball.y - ball.radius < 0)
         }
         scoreGame();
         hitCount++;
-        brickHit.play();
+        brickHit.play;
         console.log(`Ball Speed ${ballSpeed}`);
         updateBallSpeedPerBrick();
         //console.log("Hit Count: " + hitCount);
