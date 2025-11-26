@@ -15,13 +15,14 @@ const isGamePage = window.location.pathname.includes("game.html");
 
 //-------------------- VARIABLES --------------------//
 let paddleSpeed = 1000; //Paddle's value is set to 1000 for smoother control
-let ballSpeed = 7;
+let ballSpeed;
 let ballAttached = true;   //Ball starts attached to paddle
 let paddleDirection = 0; //-1 = left, 1 = right, 0 = stop
 let ball = { x: 0, y: 0, dx: ballSpeed, dy: ballSpeed, radius: 8 };
 let paddle = { x: 0, y: gameHeight - 40, width: 100, height: 15 };
 let bricks = [];
-let difficultyLevel = ["Easy", "Normal", "Hard"];
+let selectedDifficulty = localStorage.getItem("selectedDifficulty") || "normal";
+let difficultyIndex;
 let score = 0;
 let lives = 3;
 let globalHitCount = 0;
@@ -44,6 +45,8 @@ if (savedLevel)
 function init() 
 {
     if (!isGamePage || !canvas) return;
+    
+    applyDifficultySettings(); //Set paddle width, ball speed, etc.
 
     //Reset ball position
     ball.x = gameWidth / 2;
@@ -178,11 +181,12 @@ if (ball.y - ball.radius < 0)
         {
             //Deduct player's lives
             lives--;
+            hitCount = 0;
+            resetBallSpeedByDifficulty();
 
             //Reset paddle position
             paddle.x = gameWidth / 2 - paddle.width / 2;
             paddle.y = gameHeight - paddle.height - 10;
-            modifyBallSpeed(7); //Reset Ball's Speed    
         }
 
         //Reattach the ball to paddle only if its not game over
@@ -240,7 +244,6 @@ if (ball.y - ball.radius < 0)
             {
                 ball.x = brick.x + brick.width + ball.radius; //Move right
             }
-
         } 
         else 
         {
@@ -373,7 +376,9 @@ function updateLevel()
     paddle.y = gameHeight - paddle.height - 10;
 
     hitCount = 0; //Reset hits count
-    modifyBallSpeed(7); //Reset Ball Speed
+
+    //
+    resetBallSpeedByDifficulty();
 
     //Load level from levels.js
     loadLevel(levels[currentLevel - 1]);
@@ -400,11 +405,12 @@ function checkLevelStatus()
 
 function reinitializeLevel()
 {
+    //Reinitialize the elements to ensure the game loops
      gameOver = false;
      menuState = "inGame"; 
 }
 
-function modifyBallSpeed(newSpeed)
+function setBallSpeed(newSpeed)
 {
     ballSpeed = newSpeed;
 
@@ -489,6 +495,7 @@ function showNameEntry()
         {
             saveHighScore(name, score); //save name + score
             window.location.href = "highScores.html"; //Go to high score page
+            menuState = "HighScore";
         }
     });
 }
@@ -514,13 +521,68 @@ function updateBallSpeedPerBrick()
 {
     //Counting every hit of the brick
     //Every 5 hits > increase ball speed by + 1
-    if (hitCount % 5 === 0) 
+    let speedInterval;
+    if (selectedDifficulty === "easy")
+    {
+    speedInterval = 10;
+    }
+    else if (selectedDifficulty === "normal")
+    {
+    speedInterval = 7;
+    }
+    else if (selectedDifficulty === "hard")
+    {
+    speedInterval = 5;
+    }
+    if (hitCount % speedInterval === 0) 
     {
             ballSpeed = Math.min(ballSpeed + 1, MAX_BALL_SPEED);
-            modifyBallSpeed(ballSpeed);
+            setBallSpeed(ballSpeed);
     }
 }
 
+//Initialize the game difficulty settings based on selected difficulty from options
+function applyDifficultySettings() 
+{
+    // Get saved difficulty, default to "normal"
+    let selectedDifficulty = localStorage.getItem("selectedDifficulty") || "normal";
+
+    if (selectedDifficulty === "easy") 
+    {
+        ballSpeed = 4;
+        paddle.width = 300; //Wide paddle for easier gameplay
+    } 
+    else if (selectedDifficulty === "normal") 
+    {
+        ballSpeed = 7;
+        paddle.width = 100; //Standard paddle width
+    } 
+    else if (selectedDifficulty === "hard") 
+    {
+        ballSpeed = 10;
+        paddle.width = 100; //Same size as normal difficulty paddle but the ball is faster
+    }
+
+    console.log("Difficulty:", selectedDifficulty, "| Ball Speed:", ballSpeed, "| Paddle Width:", paddle.width);
+}
+
+function resetBallSpeedByDifficulty()
+{
+// Get saved difficulty, default to "normal"
+
+    if (selectedDifficulty === "easy") 
+    {
+        setBallSpeed(4);
+    } 
+    else if (selectedDifficulty === "normal") 
+    {
+        setBallSpeed(7);
+    } 
+    else if (selectedDifficulty === "hard") 
+    {
+        setBallSpeed(10);
+    }
+}
 
 //-------------------- EVENT LISTENERS --------------------//
 
