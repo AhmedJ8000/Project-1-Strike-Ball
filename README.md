@@ -157,7 +157,7 @@ This project reinforced skills in problem-solving, debugging, and structuring Ja
 ## Future Improvements
 
 Potential upgrades include:
-- Sound effects & background music  
+- More Sound effects & background music  
 - Power-ups (multi-ball, expand paddle, slow ball)  
 - Animated particle effects when bricks break
 - Animating menus fade in-out using.  
