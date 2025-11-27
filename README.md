@@ -89,7 +89,7 @@ Used for:
 
 Canvas allows smooth frame-by-frame animation at 60 FPS.
 
-### **JavaScript (ES6)**
+### **JavaScript**
 Handles:
 - Game loop  
 - Collision detection  
@@ -98,7 +98,7 @@ Handles:
 - Dynamic difficulty scaling  
 - Saving/loading settings  
 
-### **CSS3**
+### **CSS**
 Handles:
 - Page layout  
 - Button styling  
