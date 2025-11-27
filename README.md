@@ -165,6 +165,8 @@ Potential upgrades include:
 - Additional levels and difficulty modes  
 - Themes or skins for the paddle and background
 - Making the Paddle Sensitivity Slider functional to save paddle speed data via localStorage
+- Adding lock level feature to ensure the player starts from level 1
+- Redering unique colors of bricks for each level
 
 ## Acknowledgements
 
